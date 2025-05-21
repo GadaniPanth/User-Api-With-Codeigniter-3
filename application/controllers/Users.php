@@ -1,6 +1,8 @@
 <?php
+// phpinfo();
+// exit;
 defined('BASEPATH') OR exit('No direct script access allowed');
-// #[\AllowDynamicProperties]
+#[\AllowDynamicProperties]
 class Users extends CI_Controller {
 
     public function __construct() {
