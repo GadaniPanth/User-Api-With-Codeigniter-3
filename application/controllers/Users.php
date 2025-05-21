@@ -14,6 +14,7 @@ class Users extends CI_Controller {
     }
 
     public function index() {
+        $base_url = base_url();
         if ($this->input->method() !== 'get') {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
             return;
@@ -23,6 +24,7 @@ class Users extends CI_Controller {
         $result = $query->result();
 
         if(!empty($result)){
+            $result[0]->image = $base_url . 'uploads/' . $result[0]->image;
             echo json_encode($result);
         }else {
             echo json_encode(["status"=> false, "messgae"=> "No Users Found!"]);
@@ -49,7 +51,8 @@ class Users extends CI_Controller {
         $name  = $this->input->post('name');
         $email = $this->input->post('email');
 
-        $image_name = $base_url . 'uploads/' . 'Default.jpg';
+        $image_name = 'Default.jpg';
+        // $image_name = $base_url . 'uploads/' . 'Default.jpg';
         if (!empty($_FILES['image']['name'])) {
             if(count($_FILES['image']['name']) != 1){
                 echo json_encode(['status' => false, 'message' => "Multiple images not allowed!"]);
@@ -66,7 +69,8 @@ class Users extends CI_Controller {
                 return;
             } else {
                 $uploaded_data = $this->upload->data();
-                $image_name = $base_url . 'uploads/' . $uploaded_data['file_name'];
+                $image_name = $uploaded_data['file_name'];
+                // $image_name = $base_url . 'uploads/' . $uploaded_data['file_name'];
             }
         }
 
@@ -95,8 +99,12 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
             return;
         }
+        $base_url = base_url();
         $user = $this->Users_model->get_user_by_id($id);
         if (!empty($user)) {
+            $user->image = $base_url . 'uploads/' . $user->image;
+            // echo json_encode(['status' => true, 'user' => $user->image]);
+            // exit;
             echo json_encode(['status' => true, 'user' => $user]);
         } else {
             echo json_encode(['status' => false, 'message' => 'User Not Found with id ' . $id]);
@@ -141,7 +149,8 @@ class Users extends CI_Controller {
                 return;
             } else {
                 $uploaded_data = $this->upload->data();
-                $image_name =  $base_url . 'uploads/' . $uploaded_data['file_name'];
+                $image_name = $uploaded_data['file_name'];
+                // $image_name =  $base_url . 'uploads/' . $uploaded_data['file_name'];
             }
         }
 
