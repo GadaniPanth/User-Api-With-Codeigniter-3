@@ -35,7 +35,7 @@ class Users extends CI_Controller {
                 'email' => $user->email,
                 'password' => $user->password,
                 'gender' => $user->gender,
-                // 'age' => $user->age,
+                'age' => $user->age,
                 'phone_number' => $user->phone_number,
                 'address' => $user->address,
                 'image' => $base_url . 'uploads/' .  $user->image,
