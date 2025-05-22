@@ -24,7 +24,11 @@ class Users extends CI_Controller {
         $result = $query->result();
 
         if(!empty($result)){
-            $result[0]->image = $base_url . 'uploads/' . $result[0]->image;
+            foreach($result as $user){
+                $user->image = $base_url . 'uploads/' . $user->image;
+                // echo $user->image;
+            }
+            // exit;
             echo json_encode($result);
         }else {
             echo json_encode(["status"=> false, "messgae"=> "No Users Found!"]);
