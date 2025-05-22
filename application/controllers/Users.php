@@ -17,7 +17,7 @@ class Users extends CI_Controller {
 
     private function _is_loggedIn($verified, $user_data){
         if($verified){
-            echo json_encode(['status'=> true, 'message'=> 'Pass Match']);
+            echo json_encode(['status'=> true, 'message'=> 'User Logged In!']);
              $newdata = array(
                 'id'  => $user_data->id,
                 'email'     => $user_data->email,
@@ -248,6 +248,10 @@ class Users extends CI_Controller {
     public function login() {
         if ($this->input->method() !== 'post') {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
+            return;
+        }
+        if(!empty($this->session->loggedInUser)){
+            echo json_encode(['status' => true, 'message' => 'Already Logged In!']);
             return;
         }
         $email = $this->input->post('email');
