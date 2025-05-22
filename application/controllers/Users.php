@@ -31,9 +31,13 @@ class Users extends CI_Controller {
             // echo "<br>";
 
             $user_data = [
-                'id'  => $user->id,
                 'name'  => $user->name,
                 'email' => $user->email,
+                'password' => $user->password,
+                'gender' => $user->gender,
+                // 'age' => $user->age,
+                'phone_number' => $user->phone_number,
+                'address' => $user->address,
                 'image' => $base_url . 'uploads/' .  $user->image,
             ];
             echo json_encode (["status"=> true, "message"=> "User authenticated successfully.", 'user_details'=> $user_data]);
@@ -94,6 +98,10 @@ class Users extends CI_Controller {
         $name  = $this->input->post('name');
         $email = $this->input->post('email');
         $password = $this->input->post('password');
+        $gender = $this->input->post('gender');
+        $age = $this->input->post('age');
+        $phone_number = $this->input->post('phone_number');
+        $address = $this->input->post('address');
         if(!empty($password)){
             $password = password_hash($password, PASSWORD_BCRYPT);
         }
@@ -124,6 +132,10 @@ class Users extends CI_Controller {
             'name'  => $name,
             'email' => $email,
             'password' => $password,
+            'gender' => $gender,
+            'age' => $age,
+            'phone_number' => $phone_number,
+            'address' => $address,
             'image' => $image_name,
         ];
 
@@ -186,6 +198,10 @@ class Users extends CI_Controller {
         $name  = !empty($this->input->post('name')) ? $this->input->post('name') : $user->name;
         $email =  !empty($this->input->post('email')) ? $this->input->post('email') : $user->email;
         $password =  !empty($this->input->post('password')) ? $this->input->post('password') : $user->password;
+        $gender =  !empty($this->input->post('gender')) ? $this->input->post('gender') : $user->gender;
+        $age =  !empty($this->input->post('age')) ? $this->input->post('age') : $user->age;
+        $phone_number =  !empty($this->input->post('phone_number')) ? $this->input->post('phone_number') : $user->phone_number;
+        $address =  !empty($this->input->post('address')) ? $this->input->post('address') : $user->address;
         $image_name = $user->image;
 
         if (!empty($_FILES['image']['name'])) {
@@ -213,6 +229,10 @@ class Users extends CI_Controller {
             'name'  => $name,
             'email' => $email,
             'password' => $password,
+            'gender' => $gender,
+            'age' => $age,
+            'phone_number' => $phone_number,
+            'address' => $address,
             'image' => $image_name,
         ];
 
