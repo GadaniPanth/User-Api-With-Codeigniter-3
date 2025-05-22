@@ -67,3 +67,9 @@ $route['users/update/(:num)'] = 'users/update/$1';
 
 // Delete user by ID
 $route['users/delete/(:num)'] = 'users/delete/$1';
+
+// Delete user by ID
+$route['users/login'] = 'users/login';
+
+// Delete user by ID
+$route['users/logout'] = 'users/logout';
