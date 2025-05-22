@@ -11,12 +11,38 @@ class Users extends CI_Controller {
         $this->load->model('Users_model');
         $this->load->helper('url');
         header('Content-Type: application/json');
+        $this->load->library('session');
+        // $this->load->library('password');
+    }
+
+    private function _is_loggedIn($verified, $user_data){
+        if($verified){
+            echo json_encode(['status'=> true, 'message'=> 'Pass Match']);
+             $newdata = array(
+                'id'  => $user_data->id,
+                'email'     => $user_data->email,
+                'logged_in' => TRUE
+            );
+            $this->session->set_userdata('loggedInUser',$newdata);
+            // echo "<br>";
+            // echo $this->session->has_userdata('loggedInUser');
+            // echo "<br>";
+            // echo json_encode ([$this->session->loggedInUser]);
+            return;
+        };
+        
+        echo json_encode(['status'=> false, 'message'=> 'Invalid Pass.']);
+        return;
     }
 
     public function index() {
         $base_url = base_url();
         if ($this->input->method() !== 'get') {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
+            return;
+        }
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
             return;
         }
         $this->load->helper('url');
@@ -41,6 +67,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
             return;
         }
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
         $this->load->library('upload');
         $base_url = base_url();
         $query = $this->db->get('users');
@@ -54,7 +84,10 @@ class Users extends CI_Controller {
 
         $name  = $this->input->post('name');
         $email = $this->input->post('email');
-
+        $password = $this->input->post('password');
+        if(!empty($password)){
+            $password = password_hash($password, PASSWORD_BCRYPT);
+        }
         $image_name = 'Default.jpg';
         // $image_name = $base_url . 'uploads/' . 'Default.jpg';
         if (!empty($_FILES['image']['name'])) {
@@ -81,6 +114,7 @@ class Users extends CI_Controller {
         $user_data = [
             'name'  => $name,
             'email' => $email,
+            'password' => $password,
             'image' => $image_name,
         ];
 
@@ -103,6 +137,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
             return;
         }
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+            return;
+        }
         $base_url = base_url();
         $user = $this->Users_model->get_user_by_id($id);
         if (!empty($user)) {
@@ -121,7 +159,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
             return;
         }
-
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+            return;
+        }
         $this->load->helper('url');
         $this->load->library('upload');
         $base_url = base_url();
@@ -135,6 +176,7 @@ class Users extends CI_Controller {
 
         $name  = !empty($this->input->post('name')) ? $this->input->post('name') : $user->name;
         $email =  !empty($this->input->post('email')) ? $this->input->post('email') : $user->email;
+        $password =  !empty($this->input->post('password')) ? $this->input->post('password') : $user->password;
         $image_name = $user->image;
 
         if (!empty($_FILES['image']['name'])) {
@@ -161,6 +203,7 @@ class Users extends CI_Controller {
         $update_data = [
             'name'  => $name,
             'email' => $email,
+            'password' => $password,
             'image' => $image_name,
         ];
 
@@ -181,8 +224,12 @@ class Users extends CI_Controller {
     }
 
     public function delete($id) {
-         if ($this->input->method() !== 'delete') {
+        if ($this->input->method() !== 'delete') {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use DELETE method.']);
+            return;
+        }
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
             return;
         }
         $user = $this->Users_model->get_user_by_id($id);
@@ -196,5 +243,39 @@ class Users extends CI_Controller {
             'message' => $result ? 'Deleted user of id ' . $id : 'Failed to delete user'
         ]);
         return;
+    }
+
+    public function login() {
+        if ($this->input->method() !== 'post') {
+            echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
+            return;
+        }
+        $email = $this->input->post('email');
+        $password = $this->input->post('password');
+
+        if(empty($email) || empty($password)){
+            echo json_encode(['status'=> false, 'message'=> 'Email & Pass Req!']);
+            return;
+        }
+        $user = $this->db->get_where('users', ['email'=> $email])->row();
+        $pass_verified = false;
+
+        if(password_verify($password, $user->password)){
+            $pass_verified = true;
+        }
+        
+        $this->_is_loggedIn($pass_verified, $user);
+    }
+
+    public function logout() {
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+            return;
+        }
+        $this->session->unset_userdata('loggedInUser');
+        if(empty($this->session->loggedInUser)){
+            echo json_encode(['status' => true, 'message' => 'Logged Out!']);
+            return;
+        }
     }
 }
