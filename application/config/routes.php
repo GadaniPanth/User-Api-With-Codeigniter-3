@@ -50,7 +50,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 $route['default_controller'] = 'users';
-$route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 // List all users (GET)
@@ -68,8 +67,11 @@ $route['users/update/(:num)'] = 'users/update/$1';
 // Delete user by ID
 $route['users/delete/(:num)'] = 'users/delete/$1';
 
-// Delete user by ID
+// login by email & Password
 $route['users/login'] = 'users/login';
 
-// Delete user by ID
-$route['users/logout'] = 'users/logout';
+// logout
+// $route['users/logout'] = 'users/logout';
+
+// 404
+$route['404_override'] = 'users/not_found404';

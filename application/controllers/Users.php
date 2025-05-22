@@ -15,23 +15,32 @@ class Users extends CI_Controller {
         // $this->load->library('password');
     }
 
-    private function _is_loggedIn($verified, $user_data){
+    private function _is_loggedIn($verified, $user){
+        $base_url = base_url();
+
         if($verified){
-            echo json_encode(['status'=> true, 'message'=> 'User Logged In!']);
-             $newdata = array(
-                'id'  => $user_data->id,
-                'email'     => $user_data->email,
-                'logged_in' => TRUE
-            );
-            $this->session->set_userdata('loggedInUser',$newdata);
+            // echo json_encode(['status'=> true, 'message'=> 'User Logged In!']);
+            //  $newdata = array(
+            //     'id'  => $user_data->id,
+            //     'email'     => $user_data->email,
+            //     'logged_in' => TRUE
+            // );
+            // $this->session->set_userdata('loggedInUser',$newdata);
             // echo "<br>";
             // echo $this->session->has_userdata('loggedInUser');
             // echo "<br>";
-            // echo json_encode ([$this->session->loggedInUser]);
+
+            $user_data = [
+                'id'  => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'image' => $base_url . 'uploads/' .  $user->image,
+            ];
+            echo json_encode (["status"=> true, "message"=> "User authenticated successfully.", 'user_details'=> $user_data]);
             return;
         };
         
-        echo json_encode(['status'=> false, 'message'=> 'Invalid Pass.']);
+        echo json_encode(['status'=> false, 'message'=> 'Invalid Credentials.']);
         return;
     }
 
@@ -41,10 +50,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
             return;
         }
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
-            return;
-        }
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
         $this->load->helper('url');
         $query = $this->db->get('users');
         $result = $query->result();
@@ -137,10 +146,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use GET method.']);
             return;
         }
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
-            return;
-        }
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
         $base_url = base_url();
         $user = $this->Users_model->get_user_by_id($id);
         if (!empty($user)) {
@@ -159,10 +168,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
             return;
         }
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
-            return;
-        }
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
         $this->load->helper('url');
         $this->load->library('upload');
         $base_url = base_url();
@@ -228,10 +237,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use DELETE method.']);
             return;
         }
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
-            return;
-        }
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
         $user = $this->Users_model->get_user_by_id($id);
         if (!$user) {
             echo json_encode(['status' => false, 'message' => 'User not found']);
@@ -250,10 +259,10 @@ class Users extends CI_Controller {
             echo json_encode(['status' => false, 'message' => 'Invalid HTTP method. Use POST method.']);
             return;
         }
-        if(!empty($this->session->loggedInUser)){
-            echo json_encode(['status' => true, 'message' => 'Already Logged In!']);
-            return;
-        }
+        // if(!empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => true, 'message' => 'Already Logged In!']);
+        //     return;
+        // }
         $email = $this->input->post('email');
         $password = $this->input->post('password');
 
@@ -262,6 +271,10 @@ class Users extends CI_Controller {
             return;
         }
         $user = $this->db->get_where('users', ['email'=> $email])->row();
+        if(empty($user)){
+            echo json_encode(["status"=> false, "message"=> "Email Not Exists!"]);
+            return;
+        }
         $pass_verified = false;
 
         if(password_verify($password, $user->password)){
@@ -271,15 +284,20 @@ class Users extends CI_Controller {
         $this->_is_loggedIn($pass_verified, $user);
     }
 
-    public function logout() {
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
-            return;
-        }
-        $this->session->unset_userdata('loggedInUser');
-        if(empty($this->session->loggedInUser)){
-            echo json_encode(['status' => true, 'message' => 'Logged Out!']);
-            return;
-        }
+    // public function logout() {
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => false, 'message' => 'Not Logged In!']);
+        //     return;
+        // }
+        // $this->session->unset_userdata('loggedInUser');
+        // if(empty($this->session->loggedInUser)){
+        //     echo json_encode(['status' => true, 'message' => 'Logged Out!']);
+        //     return;
+        // }
+    // }
+
+    public function not_found404() {
+        echo json_encode(["status"=> '404', "message"=> "Page Not Found!"]);
+        // $this->output->set_status_header(404)->set_content_type('application/json')->set_output(json_encode(["status" => 404,"message" => "Page Not Found!"]));
     }
 }
